@@ -92,7 +92,6 @@ $bids_result = mysqli_query($conn, $bids_query);
         }
 
         .bid {
-            background: #fff;
             margin: 1rem 0;
             padding: 1rem;
             border-radius: 5px;
@@ -106,6 +105,16 @@ $bids_result = mysqli_query($conn, $bids_query);
 
         .bid p {
             margin: 0.5rem 0;
+        }
+
+        .bid.green {
+            background-color: #d4edda; /* Light green */
+            border: 1px solid #c3e6cb;
+        }
+
+        .bid.red {
+            background-color: #f8d7da; /* Light red */
+            border: 1px solid #f5c6cb;
         }
 
         footer {
@@ -131,7 +140,11 @@ $bids_result = mysqli_query($conn, $bids_query);
         <h2>Bids I've Placed</h2>
         <?php if (mysqli_num_rows($bids_result) > 0): ?>
             <?php while ($bid = mysqli_fetch_assoc($bids_result)): ?>
-                <div class="bid">
+                <!-- Determine class based on condition -->
+                <?php 
+                    $class = ($bid['bid_amount'] == $bid['current_price']) ? 'green' : 'red';
+                ?>
+                <div class="bid <?= $class; ?>">
                     <h3><?= htmlspecialchars($bid['item_title']); ?></h3>
                     <p>Description: <?= htmlspecialchars($bid['item_description']); ?></p>
                     <p>Your Bid: <strong><?= htmlspecialchars($bid['bid_amount']); ?></strong></p>
@@ -148,3 +161,4 @@ $bids_result = mysqli_query($conn, $bids_query);
     </footer>
 </body>
 </html>
+

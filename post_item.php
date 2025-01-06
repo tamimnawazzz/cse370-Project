@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch upcoming or live events for dropdown
+
 $events_query = "SELECT event_id, title FROM events WHERE user_id = {$_SESSION['user_id']} AND status IN ('upcoming', 'live')";
 $events_result = mysqli_query($conn, $events_query);
 ?>

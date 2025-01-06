@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Update the status of events based on the current date
+
 $update_status_query = "
     UPDATE events
     SET status = CASE 
@@ -20,12 +20,12 @@ $update_status_query = "
     WHERE user_id = $user_id";
 mysqli_query($conn, $update_status_query);
 
-// Fetch user details
+
 $user_query = "SELECT name, email FROM users WHERE id = $user_id";
 $user_result = mysqli_query($conn, $user_query);
 $user_data = mysqli_fetch_assoc($user_result);
 
-// Fetch organizer's events with item counts
+
 $events_query = "
     SELECT e.event_id, e.title, e.start_date, e.end_date, e.status,
            (SELECT COUNT(*) FROM items WHERE event_id = e.event_id) AS item_count
@@ -134,14 +134,14 @@ $events_result = mysqli_query($conn, $events_query);
         </ul>
     </nav>
     <main>
-        <!-- Profile Summary Section -->
+       
         <div class="profile-summary">
             <h2>Profile Summary</h2>
             <p><strong>Name:</strong> <?php echo htmlspecialchars($user_data['name']); ?></p>
             <p><strong>Email:</strong> <?php echo htmlspecialchars($user_data['email']); ?></p>
         </div>
 
-        <!-- Events Section -->
+        
         <div class="events-section">
             <h2>Your Events</h2>
             <?php if (mysqli_num_rows($events_result) > 0) { ?>
