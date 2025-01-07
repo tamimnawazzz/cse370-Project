@@ -108,12 +108,12 @@ $bids_result = mysqli_query($conn, $bids_query);
         }
 
         .bid.green {
-            background-color: #d4edda; /* Light green */
+            background-color: #d4edda;
             border: 1px solid #c3e6cb;
         }
 
         .bid.red {
-            background-color: #f8d7da; /* Light red */
+            background-color: #f8d7da; 
             border: 1px solid #f5c6cb;
         }
 
@@ -140,7 +140,7 @@ $bids_result = mysqli_query($conn, $bids_query);
         <h2>Bids I've Placed</h2>
         <?php if (mysqli_num_rows($bids_result) > 0): ?>
             <?php while ($bid = mysqli_fetch_assoc($bids_result)): ?>
-                <!-- Determine class based on condition -->
+                
                 <?php 
                     $class = ($bid['bid_amount'] == $bid['current_price']) ? 'green' : 'red';
                 ?>
