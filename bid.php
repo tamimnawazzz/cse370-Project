@@ -2,7 +2,7 @@
 session_start();
 include 'connect.php';
 
-// Check if user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch the user's bids
+
 $bids_query = "
     SELECT 
         bids.bid_amount, 

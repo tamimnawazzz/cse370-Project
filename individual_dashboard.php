@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['bid'])) {
         $item_id = mysqli_real_escape_string($conn, $_POST['item_id']);
         $bid_amount = mysqli_real_escape_string($conn, $_POST['bid_amount']);
+ 
 
-       
         $query = "SELECT current_price FROM items WHERE item_id = '$item_id'";
         $result = mysqli_query($conn, $query);
         $item = mysqli_fetch_assoc($result);
@@ -23,14 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result && $item) {
             $current_price = $item['current_price'];
 
-            
+
             if (($current_price == 0 && $bid_amount > 0) || ($bid_amount > $current_price && $bid_amount >= $current_price + 100)) {
                 $bid_time = date('Y-m-d H:i:s');
                 $insert_query = "INSERT INTO bids (item_id, user_id, bid_amount, bid_time) 
                                  VALUES ('$item_id', '$user_id', '$bid_amount', '$bid_time')";
 
+
                 if (mysqli_query($conn, $insert_query)) {
-                    
+
                     $update_query = "UPDATE items SET current_price = '$bid_amount' WHERE item_id = '$item_id'";
                     mysqli_query($conn, $update_query);
                     $_SESSION['message'] = 'Bid placed successfully!';
@@ -280,7 +281,7 @@ $items_result = mysqli_query($conn, $items_query);
 </head>
 <body>
     <header>
-        <h1>Welcome to Your Dashboard </h1>
+        <h1>Welcome to Your Dashboard</h1>
     </header>
     <nav>
         <ul>
@@ -300,26 +301,22 @@ $items_result = mysqli_query($conn, $items_query);
                 <div class="event">
                     <h3><?= htmlspecialchars($event['title']); ?></h3>
                     <p>Status: <?= htmlspecialchars($event['status']); ?></p>
-
-                    
                     <form method="POST">
                         <textarea name="comment_text" placeholder="Add a comment..." required></textarea>
                         <input type="hidden" name="item_type" value="event">
                         <input type="hidden" name="item_id" value="<?= $event['event_id']; ?>">
                         <button type="submit" name="comment">Comment</button>
                     </form>
-
-                  
                     <h4>Comments:</h4>
                     <?php
                     $event_id = $event['event_id'];
-                    $comments_query = "SELECT comments.comment_text, comments.comment_time, users.name 
-                                       FROM comments 
-                                       JOIN users ON comments.user_id = users.id 
-                                       WHERE comments.item_type = 'event' AND comments.item_id = '$event_id' 
-                                       ORDER BY comments.comment_time DESC";
-                    $comments_result = mysqli_query($conn, $comments_query);
-                    while ($comment = mysqli_fetch_assoc($comments_result)) { ?>
+                    $event_comments_query = "SELECT comments.comment_text, comments.comment_time, users.name 
+                                             FROM comments 
+                                             JOIN users ON comments.user_id = users.id 
+                                             WHERE comments.item_type = 'event' AND comments.item_id = '$event_id' 
+                                             ORDER BY comments.comment_time DESC";
+                    $event_comments_result = mysqli_query($conn, $event_comments_query);
+                    while ($comment = mysqli_fetch_assoc($event_comments_result)) { ?>
                         <p><strong><?= htmlspecialchars($comment['name']); ?>:</strong> <?= htmlspecialchars($comment['comment_text']); ?> (<?= htmlspecialchars($comment['comment_time']); ?>)</p>
                     <?php } ?>
                 </div>
@@ -327,64 +324,56 @@ $items_result = mysqli_query($conn, $items_query);
         </section>
 
         <section>
-    <h2>Live Products</h2>
-    <div class="products-grid">
-        <?php while ($item = mysqli_fetch_assoc($items_result)) { 
-           
-            $item_id = $item['item_id'];
-            $highest_bid_query = "
-                SELECT bids.bid_amount, users.name AS bidder_name
-                FROM bids
-                JOIN users ON bids.user_id = users.id
-                WHERE bids.item_id = '$item_id'
-                ORDER BY bids.bid_amount DESC
-                LIMIT 1
-            ";
-            $highest_bid_result = mysqli_query($conn, $highest_bid_query);
-            $highest_bid = mysqli_fetch_assoc($highest_bid_result);
-        ?>
-            <div class="product">
-                <h3><?= htmlspecialchars($item['title']); ?></h3>
-                <p>Description: <?= htmlspecialchars($item['description']); ?></p>
-                <img src="images/<?= htmlspecialchars($item['image']); ?>" alt="<?= htmlspecialchars($item['title']); ?>" width="150">
-                <p>Current Price: <?= htmlspecialchars($item['current_price']); ?></p>
-                <p>
-                    Highest Bidder: 
-                    <?= $highest_bid ? htmlspecialchars($highest_bid['bidder_name']) : 'No bids yet'; ?>
-                </p>
-                
-                
-                <form method="POST">
-                    <input type="number" name="bid_amount" placeholder="Enter your bid" required>
-                    <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
-                    <button type="submit" name="bid">Place Bid</button>
-                </form>
-
-                
-                <form method="POST">
-                    <textarea name="comment_text" placeholder="Add a comment..." required></textarea>
-                    <input type="hidden" name="item_type" value="item">
-                    <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
-                    <button type="submit" name="comment">Comment</button>
-                </form>
-
-                
-                <h4>Comments:</h4>
-                <?php
-                $comments_query = "SELECT comments.comment_text, comments.comment_time, users.name 
-                                   FROM comments 
-                                   JOIN users ON comments.user_id = users.id 
-                                   WHERE comments.item_type = 'item' AND comments.item_id = '$item_id' 
-                                   ORDER BY comments.comment_time DESC";
-                $comments_result = mysqli_query($conn, $comments_query);
-                while ($comment = mysqli_fetch_assoc($comments_result)) { ?>
-                    <p><strong><?= htmlspecialchars($comment['name']); ?>:</strong> <?= htmlspecialchars($comment['comment_text']); ?> (<?= htmlspecialchars($comment['comment_time']); ?>)</p>
+            <h2>Live Products</h2>
+            <div class="products-grid">
+                <?php while ($item = mysqli_fetch_assoc($items_result)) { 
+                    $item_id = $item['item_id'];
+                    $highest_bid_query = "
+                        SELECT bids.bid_amount, users.name AS bidder_name
+                        FROM bids
+                        JOIN users ON bids.user_id = users.id
+                        WHERE bids.item_id = '$item_id'
+                        ORDER BY bids.bid_amount DESC
+                        LIMIT 1
+                    ";
+                    $highest_bid_result = mysqli_query($conn, $highest_bid_query);
+                    $highest_bid = mysqli_fetch_assoc($highest_bid_result);
+                ?>
+                    <div class="product">
+                        <h3><?= htmlspecialchars($item['title']); ?></h3>
+                        <p>Description: <?= htmlspecialchars($item['description']); ?></p>
+                        <img src="images/<?= htmlspecialchars($item['image']); ?>" alt="<?= htmlspecialchars($item['title']); ?>" width="150">
+                        <p>Current Price: <?= htmlspecialchars($item['current_price']); ?></p>
+                        <p>
+                            Highest Bidder: 
+                            <?= $highest_bid ? htmlspecialchars($highest_bid['bidder_name']) : 'No bids yet'; ?>
+                        </p>
+                        <form method="POST">
+                            <input type="number" name="bid_amount" placeholder="Enter your bid" required>
+                            <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
+                            <button type="submit" name="bid">Place Bid</button>
+                        </form>
+                        <form method="POST">
+                            <textarea name="comment_text" placeholder="Add a comment..." required></textarea>
+                            <input type="hidden" name="item_type" value="product">
+                            <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
+                            <button type="submit" name="comment">Comment</button>
+                        </form>
+                        <h4>Comments:</h4>
+                        <?php
+                        $product_comments_query = "SELECT comments.comment_text, comments.comment_time, users.name 
+                                                   FROM comments 
+                                                   JOIN users ON comments.user_id = users.id 
+                                                   WHERE comments.item_type = 'product' AND comments.item_id = '$item_id' 
+                                                   ORDER BY comments.comment_time DESC";
+                        $product_comments_result = mysqli_query($conn, $product_comments_query);
+                        while ($comment = mysqli_fetch_assoc($product_comments_result)) { ?>
+                            <p><strong><?= htmlspecialchars($comment['name']); ?>:</strong> <?= htmlspecialchars($comment['comment_text']); ?> (<?= htmlspecialchars($comment['comment_time']); ?>)</p>
+                        <?php } ?>
+                    </div>
                 <?php } ?>
             </div>
-        <?php } ?>
-    </div>
-</section>
-
+        </section>
     </main>
 </body>
 </html>
