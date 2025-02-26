@@ -28,7 +28,7 @@ Installation Guide
 
 Clone the repository:
 
-git clone https://github.com/yourusername/bidrush.git
+git clone https://github.com/tamimnawazzz/cse370-Project.git
 
 Navigate to the project directory:
 
